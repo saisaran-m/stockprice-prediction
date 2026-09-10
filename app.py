@@ -393,7 +393,12 @@ else:
     default_start = date(2015, 1, 1)
 
     start_date = st.sidebar.date_input("Start Date", value=default_start, max_value=today - timedelta(days=120))
-    end_date = st.sidebar.date_input("End Date (Today)", value=today, max_value=today)
+    end_date = st.sidebar.date_input(
+        "End Date",
+        value=today,
+        max_value=today + timedelta(days=1),
+        help="Latest trading date. US stock markets operate in Eastern Time (EDT)."
+    )
 
     if start_date >= end_date:
         st.sidebar.error("Start Date must be before End Date.")
@@ -555,9 +560,9 @@ else:
 
     with col1:
         st.metric(
-            label=f"Latest Close ({latest_date.strftime('%b %d, %Y')})",
+            label=f"Market Price ({latest_date.strftime('%b %d, %Y')})",
             value=f"${latest_close:,.2f}",
-            delta=f"{price_change:+.2f} ({price_change_pct:+.2f}%)"
+            delta=f"{price_change:+.2f} ({price_change_pct:+.2f}%) vs Prev Close (${prev_close:,.2f})"
         )
 
     with col2:
