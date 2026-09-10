@@ -24,24 +24,6 @@ st.set_page_config(
 # Custom CSS for polished, institutional-grade appearance
 st.markdown("""
 <style>
-    /* Enforce Pure White & Light Theme Styling */
-    .stApp {
-        background-color: #ffffff;
-        color: #1e293b;
-    }
-    [data-testid="stSidebar"] {
-        background-color: #f8fafc;
-        border-right: 1px solid #e2e8f0;
-    }
-    header[data-testid="stHeader"] {
-        background-color: rgba(255, 255, 255, 0.95);
-    }
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        border-radius: 16px !important;
-        border-color: #e2e8f0 !important;
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.04) !important;
-        background-color: #ffffff !important;
-    }
     .tour-pill {
         display: inline-block;
         padding: 6px 14px;
@@ -50,33 +32,31 @@ st.markdown("""
         font-weight: 600;
         margin-right: 8px;
         margin-bottom: 12px;
-        background-color: #e0f2fe;
-        color: #0369a1;
-        border: 1px solid #bae6fd;
+        background-color: rgba(3, 105, 161, 0.12);
+        color: #0284c7;
+        border: 1px solid rgba(3, 105, 161, 0.25);
     }
     .feature-box {
-        background-color: #ffffff;
-        border: 1px solid #edf2f7;
+        background-color: rgba(125, 125, 125, 0.05);
+        border: 1px solid rgba(125, 125, 125, 0.2);
         border-radius: 12px;
         padding: 18px 20px;
         height: 100%;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
     }
     .feature-title {
         font-weight: 700;
         font-size: 15px;
-        color: #1e293b;
         margin-bottom: 6px;
     }
     .feature-desc {
         font-size: 13px;
-        color: #64748b;
+        opacity: 0.8;
         line-height: 1.5;
     }
     .step-indicator {
         font-size: 14px;
         font-weight: 600;
-        color: #64748b;
+        opacity: 0.8;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -262,8 +242,8 @@ def render_onboarding_tour():
     # Render unified tour card
     with st.container(border=True):
         st.markdown(f'<span class="tour-pill">{current_data["badge"]}</span>', unsafe_allow_html=True)
-        st.markdown(f'<h1 style="font-size: 28px; font-weight: 800; color: #0f172a; margin-bottom: 8px; margin-top: 4px;">{current_data["title"]}</h1>', unsafe_allow_html=True)
-        st.markdown(f'<p style="font-size: 16px; color: #475569; margin-bottom: 24px;">{current_data["subtitle"]}</p>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="font-size: 28px; font-weight: 800; margin-bottom: 8px; margin-top: 4px;">{current_data["title"]}</h1>', unsafe_allow_html=True)
+        st.markdown(f'<p style="font-size: 16px; opacity: 0.8; margin-bottom: 24px;">{current_data["subtitle"]}</p>', unsafe_allow_html=True)
 
         # 4-Column Feature Grid
         cols = st.columns(4)
