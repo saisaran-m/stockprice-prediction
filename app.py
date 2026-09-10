@@ -257,6 +257,80 @@ def render_onboarding_tour():
                 color: #94a3b8 !important;
                 line-height: 1.5 !important;
             }}
+            /* Secondary Buttons (Skip Tour & Previous) */
+            div.stButton > button[kind="secondary"],
+            div.stButton > button:not([kind="primary"]) {{
+                background: rgba(30, 41, 59, 0.88) !important;
+                border: 1px solid rgba(56, 189, 248, 0.5) !important;
+                border-radius: 10px !important;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+                transition: all 0.2s ease-in-out !important;
+            }}
+            div.stButton > button[kind="secondary"] p,
+            div.stButton > button:not([kind="primary"]) p,
+            div.stButton > button[kind="secondary"] span,
+            div.stButton > button:not([kind="primary"]) span {{
+                color: #ffffff !important;
+                font-weight: 600 !important;
+                font-size: 14px !important;
+            }}
+            div.stButton > button[kind="secondary"]:hover,
+            div.stButton > button:not([kind="primary"]):hover {{
+                background: #0284c7 !important;
+                border-color: #38bdf8 !important;
+                box-shadow: 0 0 18px rgba(56, 189, 248, 0.6) !important;
+                transform: translateY(-1px) !important;
+            }}
+            div.stButton > button[kind="secondary"]:hover p,
+            div.stButton > button:not([kind="primary"]):hover p,
+            div.stButton > button[kind="secondary"]:hover span,
+            div.stButton > button:not([kind="primary"]):hover span {{
+                color: #ffffff !important;
+            }}
+            div.stButton > button[kind="secondary"]:active,
+            div.stButton > button:not([kind="primary"]):active,
+            div.stButton > button[kind="secondary"]:focus,
+            div.stButton > button:not([kind="primary"]):focus {{
+                background: #0369a1 !important;
+                border-color: #38bdf8 !important;
+                box-shadow: 0 0 22px rgba(56, 189, 248, 0.75) !important;
+            }}
+            div.stButton > button[kind="secondary"]:active p,
+            div.stButton > button:not([kind="primary"]):active p,
+            div.stButton > button[kind="secondary"]:focus p,
+            div.stButton > button:not([kind="primary"]):focus p {{
+                color: #ffffff !important;
+            }}
+
+            /* Primary Buttons (Next & Get Started) */
+            div.stButton > button[kind="primary"] {{
+                background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+                border: 1px solid rgba(56, 189, 248, 0.65) !important;
+                border-radius: 10px !important;
+                box-shadow: 0 4px 16px rgba(2, 132, 199, 0.5) !important;
+                transition: all 0.2s ease-in-out !important;
+            }}
+            div.stButton > button[kind="primary"] p,
+            div.stButton > button[kind="primary"] span {{
+                color: #ffffff !important;
+                font-weight: 700 !important;
+                font-size: 14px !important;
+            }}
+            div.stButton > button[kind="primary"]:hover {{
+                background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+                border-color: #7dd3fc !important;
+                box-shadow: 0 0 24px rgba(56, 189, 248, 0.75) !important;
+                transform: translateY(-1px) !important;
+            }}
+            div.stButton > button[kind="primary"]:active,
+            div.stButton > button[kind="primary"]:focus {{
+                background: #075985 !important;
+                border-color: #38bdf8 !important;
+            }}
+            div.stButton > button[kind="primary"]:active p,
+            div.stButton > button[kind="primary"]:focus p {{
+                color: #ffffff !important;
+            }}
         </style>
         """, unsafe_allow_html=True)
 
