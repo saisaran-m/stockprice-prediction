@@ -908,50 +908,50 @@ else:
                 test_preds_actual = np.array(test_preds_actual)
                 y_test_actual = np.array(y_test_actual)
 
-        test_dates = data.index[split_idx:]
-        min_len = min(len(test_dates), len(y_test_actual), len(test_preds_actual))
+            test_dates = data.index[split_idx:]
+            min_len = min(len(test_dates), len(y_test_actual), len(test_preds_actual))
 
-        eval_dates = test_dates[:min_len]
-        eval_actual = y_test_actual[:min_len]
-        eval_pred = test_preds_actual[:min_len]
+            eval_dates = test_dates[:min_len]
+            eval_actual = y_test_actual[:min_len]
+            eval_pred = test_preds_actual[:min_len]
 
-        # Plotly interactive test evaluation
-        fig_eval = go.Figure()
-        fig_eval.add_trace(go.Scatter(
-            x=eval_dates, y=eval_actual,
-            mode="lines",
-            name="Original Actual Price",
-            line=dict(color="#2ca02c", width=2)
-        ))
-        fig_eval.add_trace(go.Scatter(
-            x=eval_dates, y=eval_pred,
-            mode="lines",
-            name="LSTM Predicted Price",
-            line=dict(color="#d62728", width=1.8, dash="dash")
-        ))
+            # Plotly interactive test evaluation
+            fig_eval = go.Figure()
+            fig_eval.add_trace(go.Scatter(
+                x=eval_dates, y=eval_actual,
+                mode="lines",
+                name="Original Actual Price",
+                line=dict(color="#2ca02c", width=2)
+            ))
+            fig_eval.add_trace(go.Scatter(
+                x=eval_dates, y=eval_pred,
+                mode="lines",
+                name="LSTM Predicted Price",
+                line=dict(color="#d62728", width=1.8, dash="dash")
+            ))
 
-        fig_eval.update_layout(
-            title=dict(text=f"<b>{stock} - Actual vs Predicted Test Set Performance</b>", font=dict(size=18)),
-            xaxis=dict(title="Date", showgrid=True, gridcolor="rgba(200,200,200,0.3)"),
-            yaxis=dict(title=f"Price ({comp_info['currency']})", showgrid=True, gridcolor="rgba(200,200,200,0.3)"),
-            hovermode="x unified",
-            template="plotly_white",
-            height=550,
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-        )
-        st.plotly_chart(fig_eval, use_container_width=True)
+            fig_eval.update_layout(
+                title=dict(text=f"<b>{stock} - Actual vs Predicted Test Set Performance</b>", font=dict(size=18)),
+                xaxis=dict(title="Date", showgrid=True, gridcolor="rgba(200,200,200,0.3)"),
+                yaxis=dict(title=f"Price ({comp_info['currency']})", showgrid=True, gridcolor="rgba(200,200,200,0.3)"),
+                hovermode="x unified",
+                template="plotly_white",
+                height=550,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            )
+            st.plotly_chart(fig_eval, use_container_width=True)
 
-        # Accuracy Metrics
-        mae = float(np.mean(np.abs(eval_pred - eval_actual)))
-        rmse = float(np.sqrt(np.mean((eval_pred - eval_actual) ** 2)))
-        mape = float(np.mean(np.abs((eval_actual - eval_pred) / eval_actual)) * 100)
-        direction_acc = float(np.mean(np.sign(np.diff(eval_actual)) == np.sign(np.diff(eval_pred))) * 100)
+            # Accuracy Metrics
+            mae = float(np.mean(np.abs(eval_pred - eval_actual)))
+            rmse = float(np.sqrt(np.mean((eval_pred - eval_actual) ** 2)))
+            mape = float(np.mean(np.abs((eval_actual - eval_pred) / eval_actual)) * 100)
+            direction_acc = float(np.mean(np.sign(np.diff(eval_actual)) == np.sign(np.diff(eval_pred))) * 100)
 
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Mean Absolute Error (MAE)", f"${mae:,.2f}")
-        m2.metric("Root Mean Squared Error (RMSE)", f"${rmse:,.2f}")
-        m3.metric("Mean Absolute % Error (MAPE)", f"{mape:.2f}%")
-        m4.metric("Directional Accuracy", f"{direction_acc:.1f}%")
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Mean Absolute Error (MAE)", f"${mae:,.2f}")
+            m2.metric("Root Mean Squared Error (RMSE)", f"${rmse:,.2f}")
+            m3.metric("Mean Absolute % Error (MAPE)", f"{mape:.2f}%")
+            m4.metric("Directional Accuracy", f"{direction_acc:.1f}%")
 
     # ----------------------------------------------------
     # TAB 5: RAW MARKET DATA
