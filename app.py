@@ -1,4 +1,5 @@
 import os
+import base64
 os.environ["KERAS_BACKEND"] = "torch"
 
 from datetime import date, timedelta
@@ -114,10 +115,89 @@ def get_company_info(ticker_symbol):
         }
 
 # ----------------------------------------------------
+# Background Image Loader for Onboarding Tour
+# ----------------------------------------------------
+@st.cache_data
+def get_tour_bg_base64():
+    bg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'tour_bg.jpg')
+    if os.path.exists(bg_path):
+        with open(bg_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    return ""
+
+# ----------------------------------------------------
 # ONBOARDING TOUR RENDERER (5 SLIDES)
 # ----------------------------------------------------
 def render_onboarding_tour():
     slide = st.session_state["slide_index"]
+
+    bg_b64 = get_tour_bg_base64()
+    if bg_b64:
+        st.markdown(f"""
+        <style>
+            .stApp {{
+                background: linear-gradient(rgba(8, 12, 24, 0.78), rgba(4, 8, 18, 0.86)),
+                            url("data:image/jpeg;base64,{bg_b64}") no-repeat center center fixed !important;
+                background-size: cover !important;
+            }}
+            [data-testid="stHeader"] {{
+                background-color: transparent !important;
+            }}
+            [data-testid="stVerticalBlockBorderWrapper"] {{
+                background: rgba(15, 23, 42, 0.84) !important;
+                backdrop-filter: blur(16px) !important;
+                -webkit-backdrop-filter: blur(16px) !important;
+                border: 1px solid rgba(56, 189, 248, 0.32) !important;
+                border-radius: 18px !important;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
+            }}
+            .tour-pill {{
+                display: inline-block;
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                margin-bottom: 12px;
+                background-color: rgba(14, 165, 233, 0.2) !important;
+                color: #38bdf8 !important;
+                border: 1px solid rgba(56, 189, 248, 0.4) !important;
+            }}
+            .tour-title {{
+                font-size: 30px !important;
+                font-weight: 800 !important;
+                color: #ffffff !important;
+                margin-bottom: 8px !important;
+                margin-top: 4px !important;
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+            }}
+            .tour-subtitle {{
+                font-size: 16px !important;
+                color: #cbd5e1 !important;
+                margin-bottom: 24px !important;
+                line-height: 1.6 !important;
+            }}
+            .feature-box {{
+                background-color: rgba(30, 41, 59, 0.72) !important;
+                border: 1px solid rgba(148, 163, 184, 0.22) !important;
+                border-radius: 12px !important;
+                padding: 18px 20px !important;
+                height: 100% !important;
+                backdrop-filter: blur(8px) !important;
+            }}
+            .feature-title {{
+                font-weight: 700 !important;
+                font-size: 15px !important;
+                color: #f8fafc !important;
+                margin-bottom: 6px !important;
+            }}
+            .feature-desc {{
+                font-size: 13px !important;
+                color: #94a3b8 !important;
+                line-height: 1.5 !important;
+            }}
+        </style>
+        """, unsafe_allow_html=True)
 
     slides_data = [
         {
@@ -242,8 +322,8 @@ def render_onboarding_tour():
     # Render unified tour card
     with st.container(border=True):
         st.markdown(f'<span class="tour-pill">{current_data["badge"]}</span>', unsafe_allow_html=True)
-        st.markdown(f'<h1 style="font-size: 28px; font-weight: 800; margin-bottom: 8px; margin-top: 4px;">{current_data["title"]}</h1>', unsafe_allow_html=True)
-        st.markdown(f'<p style="font-size: 16px; opacity: 0.8; margin-bottom: 24px;">{current_data["subtitle"]}</p>', unsafe_allow_html=True)
+        st.markdown(f'<h1 class="tour-title">{current_data["title"]}</h1>', unsafe_allow_html=True)
+        st.markdown(f'<p class="tour-subtitle">{current_data["subtitle"]}</p>', unsafe_allow_html=True)
 
         # 4-Column Feature Grid
         cols = st.columns(4)
