@@ -24,6 +24,18 @@ st.set_page_config(
 # Custom CSS for polished, institutional-grade appearance
 st.markdown("""
 <style>
+    /* Enforce Pure White & Light Theme Styling */
+    .stApp {
+        background-color: #ffffff;
+        color: #1e293b;
+    }
+    [data-testid="stSidebar"] {
+        background-color: #f8fafc;
+        border-right: 1px solid #e2e8f0;
+    }
+    header[data-testid="stHeader"] {
+        background-color: rgba(255, 255, 255, 0.95);
+    }
     .tour-card {
         background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
         border: 1px solid #e2e8f0;
