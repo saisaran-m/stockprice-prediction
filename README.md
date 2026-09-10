@@ -51,3 +51,8 @@ http://localhost:8501
 1. Enter any stock symbol (such as GOOG, AAPL, MSFT, TSLA).
 2. Select your desired date range and forecast horizon.
 3. The app downloads the latest market data, computes technical indicators, and runs the LSTM model to generate future price estimates.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
