@@ -84,7 +84,58 @@ def get_model():
         model_path = r'C:\Python\Stock\Stock Predictions Model.keras'
     return load_model(model_path)
 
-model = get_model()
+@st.cache_data
+def calculate_future_predictions(ticker_symbol, close_prices_series, future_days, latest_close):
+    m = get_model()
+    close_df = pd.DataFrame(close_prices_series)
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled_data = scaler.fit_transform(close_df)
+
+    if len(scaled_data) >= 101:
+        prev_100_scaled = scaled_data[-101:-1].reshape(1, 100, 1)
+        pred_today_scaled = m.predict(prev_100_scaled, verbose=0)
+        pred_today_unscaled = float(scaler.inverse_transform(pred_today_scaled)[0, 0])
+        cal_offset = latest_close - pred_today_unscaled
+    else:
+        cal_offset = 0.0
+
+    last_100_scaled = scaled_data[-100:].reshape(1, 100, 1)
+    current_batch = last_100_scaled.copy()
+    future_preds = []
+    for _ in range(future_days):
+        pred_scaled = m.predict(current_batch, verbose=0)
+        future_preds.append(pred_scaled[0, 0])
+        current_batch = np.append(current_batch[:, 1:, :], [[[pred_scaled[0, 0]]]], axis=1)
+
+    future_preds = np.array(future_preds).reshape(-1, 1)
+    raw_future = scaler.inverse_transform(future_preds).flatten()
+    return (raw_future + cal_offset).tolist()
+
+@st.cache_data
+def calculate_test_evaluation(ticker_symbol, close_prices_series):
+    m = get_model()
+    close_df = pd.DataFrame(close_prices_series)
+    split_idx = int(len(close_df) * 0.80)
+    data_train = pd.DataFrame(close_df.iloc[0:split_idx])
+    data_test = pd.DataFrame(close_df.iloc[split_idx:])
+
+    scaler_eval = MinMaxScaler(feature_range=(0, 1))
+    pas_100 = data_train.tail(100)
+    data_test_full = pd.concat([pas_100, data_test], ignore_index=True)
+    data_test_scaled = scaler_eval.fit_transform(data_test_full)
+
+    x_test, y_test = [], []
+    for i in range(100, len(data_test_scaled)):
+        x_test.append(data_test_scaled[i - 100:i])
+        y_test.append(data_test_scaled[i, 0])
+
+    x_test, y_test = np.array(x_test), np.array(y_test)
+    test_preds = m.predict(x_test, verbose=0)
+
+    scale_eval = 1 / scaler_eval.scale_[0]
+    test_preds_actual = (test_preds * scale_eval).flatten()
+    y_test_actual = (y_test * scale_eval).flatten()
+    return split_idx, test_preds_actual.tolist(), y_test_actual.tolist()
 
 # ----------------------------------------------------
 # Company Info Loader
@@ -510,35 +561,8 @@ else:
     # ----------------------------------------------------
     # Upcoming Days Forecasting Engine with Continuity Calibration
     # ----------------------------------------------------
-    close_df = pd.DataFrame(close_series)
-    scaler_future = MinMaxScaler(feature_range=(0, 1))
-    scaled_data = scaler_future.fit_transform(close_df)
-
-    # Calculate model offset at day 0 (today) to ensure smooth continuity without step-jumps
-    if len(scaled_data) >= 101:
-        prev_100_scaled = scaled_data[-101:-1].reshape(1, 100, 1)
-        pred_today_scaled = model.predict(prev_100_scaled, verbose=0)
-        pred_today_unscaled = float(scaler_future.inverse_transform(pred_today_scaled)[0, 0])
-        calibration_offset = latest_close - pred_today_unscaled
-    else:
-        calibration_offset = 0.0
-
-    # Multi-step recursive forecasting
-    last_100_scaled = scaled_data[-100:].reshape(1, 100, 1)
-    current_batch = last_100_scaled.copy()
-    future_predictions = []
-
     with st.spinner(f"Running LSTM deep learning forecast for next {future_days} upcoming days..."):
-        for _ in range(future_days):
-            pred_scaled = model.predict(current_batch, verbose=0)
-            future_predictions.append(pred_scaled[0, 0])
-            current_batch = np.append(current_batch[:, 1:, :], [[[pred_scaled[0, 0]]]], axis=1)
-
-    future_predictions = np.array(future_predictions).reshape(-1, 1)
-    raw_future_prices = scaler_future.inverse_transform(future_predictions).flatten()
-
-    # Apply calibration offset to guarantee realistic, seamless price continuity from today
-    future_prices = raw_future_prices + calibration_offset
+        future_prices = np.array(calculate_future_predictions(stock, close_series, future_days, latest_close))
 
     # Future business days (excludes weekends)
     future_dates = pd.bdate_range(start=latest_date + pd.Timedelta(days=1), periods=future_days)
@@ -859,28 +883,10 @@ else:
         st.subheader(f"Historical LSTM Validation on 20% Test Dataset")
         st.markdown("Evaluates model forecasting accuracy against unseen historical actual market data.")
 
-        split_idx = int(len(close_df) * 0.80)
-        data_train = pd.DataFrame(close_df.iloc[0:split_idx])
-        data_test = pd.DataFrame(close_df.iloc[split_idx:])
-
-        scaler_eval = MinMaxScaler(feature_range=(0, 1))
-        pas_100 = data_train.tail(100)
-        data_test_full = pd.concat([pas_100, data_test], ignore_index=True)
-        data_test_scaled = scaler_eval.fit_transform(data_test_full)
-
-        x_test, y_test = [], []
-        for i in range(100, len(data_test_scaled)):
-            x_test.append(data_test_scaled[i - 100:i])
-            y_test.append(data_test_scaled[i, 0])
-
-        x_test, y_test = np.array(x_test), np.array(y_test)
-
         with st.spinner("Evaluating model predictions on test dataset..."):
-            test_preds = model.predict(x_test, verbose=0)
-
-        scale_eval = 1 / scaler_eval.scale_[0]
-        test_preds_actual = (test_preds * scale_eval).flatten()
-        y_test_actual = (y_test * scale_eval).flatten()
+            split_idx, test_preds_actual, y_test_actual = calculate_test_evaluation(stock, close_series)
+            test_preds_actual = np.array(test_preds_actual)
+            y_test_actual = np.array(y_test_actual)
 
         test_dates = data.index[split_idx:]
         min_len = min(len(test_dates), len(y_test_actual), len(test_preds_actual))
