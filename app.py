@@ -166,6 +166,16 @@ def get_company_info(ticker_symbol):
         }
 
 # ----------------------------------------------------
+# Market Data Loader with Caching
+# ----------------------------------------------------
+@st.cache_data(ttl=300)
+def fetch_market_data(ticker_symbol, start_str, end_str):
+    df = yf.download(ticker_symbol, start=start_str, end=end_str, progress=False)
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = [col[0] for col in df.columns]
+    return df
+
+# ----------------------------------------------------
 # Background Image Loader for Onboarding Tour
 # ----------------------------------------------------
 @st.cache_data
@@ -441,7 +451,7 @@ else:
     ).upper().strip()
 
     today = date.today()
-    default_start = date(2015, 1, 1)
+    default_start = today - timedelta(days=365 * 4)
 
     start_date = st.sidebar.date_input("Start Date", value=default_start, max_value=today - timedelta(days=120))
     end_date = st.sidebar.date_input(
@@ -484,9 +494,9 @@ else:
     # ----------------------------------------------------
     # Fetch Market Data
     # ----------------------------------------------------
-    with st.spinner(f"Downloading live market data for {stock}..."):
+    with st.spinner(f"Loading market data for {stock}..."):
         fetch_end = end_date + timedelta(days=1)
-        data = yf.download(stock, start=start_date.strftime('%Y-%m-%d'), end=fetch_end.strftime('%Y-%m-%d'))
+        data = fetch_market_data(stock, start_date.strftime('%Y-%m-%d'), fetch_end.strftime('%Y-%m-%d'))
 
     if data.empty:
         st.error(f"❌ No market data found for ticker symbol **'{stock}'**. Please verify the symbol and try again.")
@@ -883,10 +893,20 @@ else:
         st.subheader(f"Historical LSTM Validation on 20% Test Dataset")
         st.markdown("Evaluates model forecasting accuracy against unseen historical actual market data.")
 
-        with st.spinner("Evaluating model predictions on test dataset..."):
-            split_idx, test_preds_actual, y_test_actual = calculate_test_evaluation(stock, close_series)
-            test_preds_actual = np.array(test_preds_actual)
-            y_test_actual = np.array(y_test_actual)
+        eval_key = f"eval_{stock}"
+        if eval_key not in st.session_state:
+            st.session_state[eval_key] = False
+
+        if not st.session_state[eval_key]:
+            st.info("💡 Click the button below to compute and visualize model accuracy on the 20% test dataset.")
+            if st.button("🧪 Run Historical Model Validation", key=f"btn_{stock}", use_container_width=True, type="primary"):
+                st.session_state[eval_key] = True
+                st.rerun()
+        else:
+            with st.spinner("Evaluating model predictions on test dataset..."):
+                split_idx, test_preds_actual, y_test_actual = calculate_test_evaluation(stock, close_series)
+                test_preds_actual = np.array(test_preds_actual)
+                y_test_actual = np.array(y_test_actual)
 
         test_dates = data.index[split_idx:]
         min_len = min(len(test_dates), len(y_test_actual), len(test_preds_actual))
