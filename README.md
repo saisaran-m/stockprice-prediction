@@ -2,6 +2,11 @@
 
 A web application for stock market analysis and future price prediction using deep learning (LSTM) and Streamlit.
 
+## Live Demo
+
+Access the live web application here:
+https://saisaran-stock-prediction.streamlit.app
+
 ## Features
 
 - Real-Time Market Data: Fetches live historical stock data from Yahoo Finance.
