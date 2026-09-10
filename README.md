@@ -2,7 +2,7 @@
 
 A web application for stock market analysis and future price prediction using deep learning (LSTM) and Streamlit.
 
-## Live Demo
+## Live Link
 
 Access the live web application here:
 https://saisaran-stock-prediction.streamlit.app
