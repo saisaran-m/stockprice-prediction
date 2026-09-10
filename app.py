@@ -36,13 +36,11 @@ st.markdown("""
     header[data-testid="stHeader"] {
         background-color: rgba(255, 255, 255, 0.95);
     }
-    .tour-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 32px 36px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        margin-bottom: 24px;
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: 16px !important;
+        border-color: #e2e8f0 !important;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.04) !important;
+        background-color: #ffffff !important;
     }
     .tour-pill {
         display: inline-block;
@@ -261,58 +259,58 @@ def render_onboarding_tour():
 
     current_data = slides_data[slide]
 
-    # Render Card
-    st.markdown('<div class="tour-card">', unsafe_allow_html=True)
-    st.markdown(f'<span class="tour-pill">{current_data["badge"]}</span>', unsafe_allow_html=True)
-    st.markdown(f'<h1 style="font-size: 28px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">{current_data["title"]}</h1>', unsafe_allow_html=True)
-    st.markdown(f'<p style="font-size: 16px; color: #475569; margin-bottom: 24px;">{current_data["subtitle"]}</p>', unsafe_allow_html=True)
+    # Render unified tour card
+    with st.container(border=True):
+        st.markdown(f'<span class="tour-pill">{current_data["badge"]}</span>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="font-size: 28px; font-weight: 800; color: #0f172a; margin-bottom: 8px; margin-top: 4px;">{current_data["title"]}</h1>', unsafe_allow_html=True)
+        st.markdown(f'<p style="font-size: 16px; color: #475569; margin-bottom: 24px;">{current_data["subtitle"]}</p>', unsafe_allow_html=True)
 
-    # 4-Column Feature Grid
-    cols = st.columns(4)
-    for i, feat in enumerate(current_data["features"]):
-        with cols[i]:
-            st.markdown(f"""
-            <div class="feature-box">
-                <div class="feature-title">{feat["title"]}</div>
-                <div class="feature-desc">{feat["desc"]}</div>
-            </div>
-            """, unsafe_allow_html=True)
+        # 4-Column Feature Grid
+        cols = st.columns(4)
+        for i, feat in enumerate(current_data["features"]):
+            with cols[i]:
+                st.markdown(f"""
+                <div class="feature-box">
+                    <div class="feature-title">{feat["title"]}</div>
+                    <div class="feature-desc">{feat["desc"]}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
 
-    # Navigation Controls Bar
-    nav_col1, nav_col2, nav_col3, nav_col4 = st.columns([2, 3, 2, 2])
+        # Navigation Controls Bar
+        nav_col1, nav_col2, nav_col3, nav_col4 = st.columns([2, 3, 2, 2])
 
-    with nav_col1:
-        if st.button("Skip Tour & Launch App", use_container_width=True):
-            st.session_state["show_tour"] = False
-            st.rerun()
-
-    with nav_col2:
-        # Visual Progress Dots
-        dots = ["●" if i == slide else "○" for i in range(5)]
-        st.markdown(
-            f"<div style='text-align: center; padding-top: 8px; font-weight: bold; color: #3b82f6; font-size: 16px;'>"
-            f"{' '.join(dots)} &nbsp;&nbsp; <span style='font-size: 13px; color: #64748b;'>Step {slide + 1} of 5</span>"
-            f"</div>",
-            unsafe_allow_html=True
-        )
-
-    with nav_col3:
-        if slide > 0:
-            if st.button("← Previous", use_container_width=True):
-                st.session_state["slide_index"] = slide - 1
-                st.rerun()
-
-    with nav_col4:
-        if slide < 4:
-            if st.button("Next →", type="primary", use_container_width=True):
-                st.session_state["slide_index"] = slide + 1
-                st.rerun()
-        else:
-            if st.button("Get Started 🚀", type="primary", use_container_width=True):
+        with nav_col1:
+            if st.button("Skip Tour & Launch App", use_container_width=True):
                 st.session_state["show_tour"] = False
                 st.rerun()
+
+        with nav_col2:
+            # Visual Progress Dots
+            dots = ["●" if i == slide else "○" for i in range(5)]
+            st.markdown(
+                f"<div style='text-align: center; padding-top: 8px; font-weight: bold; color: #3b82f6; font-size: 16px;'>"
+                f"{' '.join(dots)} &nbsp;&nbsp; <span style='font-size: 13px; color: #64748b;'>Step {slide + 1} of 5</span>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+        with nav_col3:
+            if slide > 0:
+                if st.button("← Previous", use_container_width=True):
+                    st.session_state["slide_index"] = slide - 1
+                    st.rerun()
+
+        with nav_col4:
+            if slide < 4:
+                if st.button("Next →", type="primary", use_container_width=True):
+                    st.session_state["slide_index"] = slide + 1
+                    st.rerun()
+            else:
+                if st.button("Get Started 🚀", type="primary", use_container_width=True):
+                    st.session_state["show_tour"] = False
+                    st.rerun()
 
 # ----------------------------------------------------
 # Main Execution Branch
